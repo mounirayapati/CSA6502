@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="LLM Firewall — Multi-Agent Security Pipeline with Injection, Jailbreak, Hallucination, and Sensitive Data detection">
+<title>LLM Firewall — Multi-Agent Security Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#0b0d12; color:#f4f4f5; font-family: 'Inter', ui-sans-serif, system-ui; }
+  canvas#bg { position:fixed; inset:0; z-index:-1; }
+  .glass { background:rgba(255,255,255,0.05); backdrop-filter: blur(14px); border:1px solid rgba(255,255,255,0.1); }
+
+  /* Trace chips */
+  .trace-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 10px; border-radius: 9999px; font-size: 11px;
+    font-weight: 500; letter-spacing: 0.02em;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .trace-chip:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+  .trace-chip.pass { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+  .trace-chip.fail { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+  .trace-chip.unknown { background: rgba(156,163,175,0.15); color: #9ca3af; border: 1px solid rgba(156,163,175,0.25); }
+  .trace-chip .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .trace-chip.pass .dot { background: #4ade80; }
+  .trace-chip.fail .dot { background: #f87171; }
+  .trace-chip.unknown .dot { background: #9ca3af; }
+
+  /* Metric cards */
+  .metric-card {
+    background: rgba(255,255,255,0.04); backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;
+    padding: 20px 24px; text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .metric-card:hover { transform: translateY(-2px); border-color: rgba(79,139,249,0.4); }
+  .metric-card .metric-value { font-size: 2rem; font-weight: 700; }
+  .metric-card .metric-label { font-size: 0.8rem; color: #9ca3af; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* Action badges */
+  .action-allow { color: #4ade80; }
+  .action-review { color: #fbbf24; }
+  .action-block { color: #f87171; }
+  .action-allowed { color: #4ade80; }
+  .action-blocked { color: #f87171; }
+  .action-redacted { color: #fbbf24; }
+
+  /* Nav active */
+  .nav-active { background: rgba(79,139,249,0.2) !important; border-left: 3px solid #4F8BF9; }
+
+  /* Smooth scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+  /* Auth form */
+  .auth-input {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px; padding: 10px 16px; outline: none; color: #f4f4f5; width: 100%;
+    transition: border-color 0.2s;
+  }
+  .auth-input:focus { border-color: rgba(79,139,249,0.6); }
+  .auth-input::placeholder { color: rgba(255,255,255,0.3); }
+
+  /* Pulse animation for loading */
+  @keyframes pulse-glow { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+  .loading-pulse { animation: pulse-glow 1.5s infinite; }
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="app" class="min-h-screen flex items-center justify-center p-6"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>
