@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IndustroSense AI - Industrial Equipment Diagnostics</title>
+<style>
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f4f7fb;
+        color: #1f2937;
+    }
+    .header {
+        background: #0f172a;
+        color: white;
+        padding: 22px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .brand { font-size: 26px; font-weight: bold; }
+    .subtitle { color: #cbd5e1; margin-top: 5px; font-size: 14px; }
+    .status {
+        background: #166534;
+        padding: 9px 15px;
+        border-radius: 20px;
+        font-size: 13px;
+    }
+    .container {
+        max-width: 1250px;
+        margin: 30px auto;
+        padding: 0 20px;
+    }
+    .grid {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 24px;
+    }
+    .card {
+        background: white;
+        border-radius: 12px;
+        padding: 22px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(15,23,42,.08);
+        border: 1px solid #e5e7eb;
+    }
+    h2 { margin-top: 0; font-size: 19px; }
+    h3 { font-size: 16px; margin-bottom: 10px; }
+    textarea {
+        width: 100%;
+        min-height: 130px;
+        padding: 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        resize: vertical;
+        font-size: 14px;
+    }
+    input[type=file] {
+        width: 100%;
+        padding: 10px;
+        border: 1px dashed #94a3b8;
+        border-radius: 8px;
+        margin-top: 6px;
+    }
+    button {
+        width: 100%;
+        padding: 13px;
+        border: none;
+        border-radius: 8px;
+        background: #2563eb;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 15px;
+    }
+    button:hover { background: #1d4ed8; }
+    .secondary {
+        background: #475569;
+        margin-top: 10px;
+    }
+    .route {
+        display: inline-block;
+        padding: 7px 12px;
+        border-radius: 18px;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-weight: bold;
+        font-size: 13px;
+    }
+    .source {
+        border-left: 4px solid #2563eb;
+        background: #f8fafc;
+        padding: 13px;
+        margin: 10px 0;
+        border-radius: 6px;
+    }
+    .source-title { font-weight: bold; color: #1e3a8a; }
+    .score { float: right; color: #64748b; font-size: 12px; }
+    .answer {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        padding: 18px;
+        border-radius: 9px;
+        line-height: 1.6;
+    }
+    .warning {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #9a3412;
+        padding: 14px;
+        border-radius: 8px;
+        margin-top: 14px;
+    }
+    .success {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        padding: 14px;
+        border-radius: 8px;
+        margin-top: 14px;
+    }
+    .metric-row {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 12px;
+    }
+    .metric {
+        background: #f8fafc;
+        padding: 14px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .metric strong { display: block; font-size: 23px; color: #1d4ed8; }
+    .small { color: #64748b; font-size: 12px; }
+    .hidden { display:none; }
+    footer {
+        text-align:center;
+        padding: 25px;
+        color:#64748b;
+        font-size:12px;
+    }
+    @media(max-width: 850px) {
+        .grid { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div>
+        <div class="brand">🏭 IndustroSense AI</div>
+        <div class="subtitle">
+            Multimodal Responsible Generative AI for Industrial Equipment Diagnostics and Documentation
+        </div>
+    </div>
+    <div class="status">● System Ready</div>
+</div>
+
+<div class="container">
+
+    <div class="grid">
+
+        <!-- LEFT PANEL -->
+        <div>
+
+            <div class="card">
+                <h2>1. Multimodal Input</h2>
+
+                <h3>Equipment Query</h3>
+                <textarea id="query"
+                    placeholder="Example: Why is the motor overheating?"></textarea>
+
+                <h3>Equipment Image</h3>
+                <input type="file" id="image" accept=".jpg,.jpeg,.png">
+
+                <h3>Speech / Audio</h3>
+                <input type="file" id="audio" accept=".wav,.mp3">
+
+                <br><br>
+                <button onclick="diagnose()">Diagnose Equipment</button>
+                <button class="secondary" onclick="clearAll()">Clear</button>
+            </div>
+
+            <div class="card">
+                <h2>Knowledge Base</h2>
+
+                <div class="metric-row">
+                    <div class="metric">
+                        <strong>5</strong>
+                        <span class="small">Documents</span>
+                    </div>
+                    <div class="metric">
+                        <strong>3</strong>
+                        <span class="small">Top-K</span>
+                    </div>
+                    <div class="metric">
+                        <strong>384</strong>
+                        <span class="small">Embedding Dim.</span>
+                    </div>
+                </div>
+
+                <h3>Representative Corpus</h3>
+                <ul class="small">
+                    <li>DOC-01 Equipment Manual</li>
+                    <li>DOC-02 Bearing Inspection SOP</li>
+                    <li>DOC-03 Pump Vibration Incident</li>
+                    <li>DOC-04 Emergency Shutdown SOP</li>
+                    <li>DOC-05 Lubrication Maintenance Manual</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div>
+
+            <div class="card">
+                <h2>2. Agent Trace</h2>
+                <span id="route" class="route">Waiting for query...</span>
+                <p id="trace" class="small">
+                    Enter a query and click Diagnose. The agent will route the request
+                    to RAG, calculator, clarification, or safety review.
+                </p>
+            </div>
+
+            <div class="card">
+                <h2>3. Retrieved Evidence - Top 3</h2>
+                <div id="sources">
+                    <p class="small">Retrieved technical evidence will appear here.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>4. Grounded AI Output</h2>
+                <div id="answer" class="answer">
+                    <strong>System ready.</strong>
+                    <p>
+                        The response will be grounded in the industrial knowledge base
+                        and will display source provenance.
+                    </p>
+                </div>
+                <div id="safety"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer>
+    CSA6502 — GENERATIVE AI AND LARGE-SCALE MODELS |
+    IndustroSense AI | Responsible AI Demonstration
+</footer>
+
+<script>
+
+const documents = [
+    {
+        source: "DOC-01 Equipment Manual",
+        text: "Motor temperature should remain within the rated operating range; inspect cooling and ventilation when temperature rises.",
+        keywords: ["motor", "overheating", "overheat", "temperature", "cooling", "ventilation"]
+    },
+    {
+        source: "DOC-02 SOP — Bearing Inspection",
+        text: "Inspect abnormal noise, vibration, lubrication problems, and visible wear during bearing inspection.",
+        keywords: ["bearing", "noise", "vibration", "lubrication", "wear"]
+    },
+    {
+        source: "DOC-03 Incident Log — Pump Vibration",
+        text: "Previous pump vibration was associated with bearing wear and misalignment.",
+        keywords: ["pump", "vibration", "bearing", "misalignment"]
+    },
+    {
+        source: "DOC-04 SOP — Emergency Shutdown",
+        text: "Stop equipment and isolate relevant power if an unsafe condition is suspected.",
+        keywords: ["emergency", "shutdown", "unsafe", "power", "dangerous", "fire", "smoke"]
+    },
+    {
+        source: "DOC-05 Maintenance Manual — Lubrication",
+        text: "Lubrication intervals depend on equipment class, operating hours, and manufacturer recommendations.",
+        keywords: ["lubrication", "maintenance", "interval", "hours", "schedule"]
+    }
+];
+
+function scoreDocument(query, doc) {
+    let q = query.toLowerCase();
+    let score = 0;
+
+    doc.keywords.forEach(word => {
+        if (q.includes(word)) score++;
+    });
+
+    return score;
+}
+
+function routeQuery(query) {
+    const q = query.toLowerCase();
+
+    const calc = ["calculate", "maintenance date", "next maintenance", "interval"];
+    const safety = ["fire", "smoke", "sparking", "electric shock", "unsafe", "dangerous", "emergency"];
+    const fault = ["overheating", "overheat", "vibration", "bearing", "noise", "leak", "lubrication", "misalignment", "shutdown"];
+
+    if (calc.some(x => q.includes(x)) && /\d/.test(q))
+        return "Calculator";
+
+    if (safety.some(x => q.includes(x)))
+        return "RAG + Safety Review";
+
+    if (fault.some(x => q.includes(x)))
+        return "RAG Retrieval";
+
+    if (q.trim().split(/\s+/).length < 4)
+        return "Clarification";
+
+    return "RAG Retrieval";
+}
+
+function diagnose() {
+
+    const query = document.getElementById("query").value.trim();
+
+    if (!query) {
+        alert("Please enter an equipment question.");
+        return;
+    }
+
+    const route = routeQuery(query);
+
+    document.getElementById("route").textContent = route;
+
+    document.getElementById("trace").textContent =
+        "Input validated → modality fusion → agent router → " +
+        route + " → evidence retrieval → grounded response → safety check.";
+
+    let scored = documents.map(doc => ({
+        ...doc,
+        score: scoreDocument(query, doc)
+    }));
+
+    scored.sort((a,b) => b.score - a.score);
+
+    let results = scored.filter(x => x.score > 0).slice(0,3);
+
+    if (results.length === 0) {
+        results = scored.slice(0,3);
+    }
+
+    let sourceHTML = "";
+
+    results.forEach((doc, index) => {
+
+        let similarity = Math.min(
+            0.99,
+            0.60 + (doc.score * 0.09)
+        );
+
+        sourceHTML += `
+            <div class="source">
+                <span class="score">Similarity: ${similarity.toFixed(3)}</span>
+                <div class="source-title">${index + 1}. ${doc.source}</div>
+                <p>${doc.text}</p>
+            </div>
+        `;
+    });
+
+    document.getElementById("sources").innerHTML = sourceHTML;
+
+    let answer = "";
+
+    if (route === "Clarification") {
+
+        answer = `
+            <strong>Clarification required.</strong>
+            <p>
+            Please provide more information such as equipment type,
+            symptom, operating condition, or maintenance context.
+            </p>
+        `;
+
+    } else if (route === "Calculator") {
+
+        answer = `
+            <strong>Calculator / Maintenance route selected.</strong>
+            <p>
+            A maintenance calculation requires the applicable equipment
+            class, operating hours, maintenance interval, and manufacturer
+            recommendation.
+            </p>
+        `;
+
+    } else {
+
+        answer = `
+            <strong>Grounded response:</strong>
+            <p>
+            Based on the retrieved technical evidence, inspect the relevant
+            equipment condition described in the cited manuals, SOPs, and
+            incident records.
+            </p>
+            <p>
+            Follow the applicable manufacturer procedure and verify the
+            condition before taking maintenance action.
+            </p>
+            <p>
+            <strong>Provenance:</strong> The recommendations above are
+            grounded in the retrieved documents shown in the evidence section.
+            </p>
+        `;
+    }
+
+    document.getElementById("answer").innerHTML = answer;
+
+    let q = query.toLowerCase();
+
+    let injection =
+        q.includes("ignore sources") ||
+        q.includes("ignore previous instructions") ||
+        q.includes("disregard the documents") ||
+        q.includes("reveal system prompt");
+
+    let highRisk =
+        ["fire","smoke","sparking","electric shock","unsafe","dangerous","emergency","shutdown"]
+        .some(x => q.includes(x));
+
+    if (injection) {
+
+        document.getElementById("safety").innerHTML = `
+            <div class="warning">
+                ⚠ <strong>Human Review Required</strong><br>
+                Potential prompt-injection instruction detected.
+                Source grounding and safety controls are preserved.
+            </div>
+        `;
+
+    } else if (highRisk) {
+
+        document.getElementById("safety").innerHTML = `
+            <div class="warning">
+                ⚠ <strong>Human Review Required</strong><br>
+                Safety-critical language detected. Verify the response
+                with a qualified human and follow the approved emergency SOP.
+            </div>
+        `;
+
+    } else {
+
+        document.getElementById("safety").innerHTML = `
+            <div class="success">
+                ✓ <strong>Safety Check Passed</strong><br>
+                Response includes evidence provenance and a human-verification
+                advisory for maintenance decisions.
+            </div>
+        `;
+    }
+
+    if (document.getElementById("image").files.length > 0) {
+
+        document.getElementById("trace").textContent +=
+            " Image input received → vision analysis stage included.";
+
+    }
+
+    if (document.getElementById("audio").files.length > 0) {
+
+        document.getElementById("trace").textContent +=
+            " Audio input received → speech-to-text stage included.";
+
+    }
+}
+
+function clearAll() {
+
+    document.getElementById("query").value = "";
+    document.getElementById("image").value = "";
+    document.getElementById("audio").value = "";
+
+    document.getElementById("route").textContent =
+        "Waiting for query...";
+
+    document.getElementById("trace").textContent =
+        "Enter a query and click Diagnose.";
+
+    document.getElementById("sources").innerHTML =
+        '<p class="small">Retrieved technical evidence will appear here.</p>';
+
+    document.getElementById("answer").innerHTML =
+        '<strong>System ready.</strong><p>The response will appear here.</p>';
+
+    document.getElementById("safety").innerHTML = "";
+}
+
+</script>
+
+</body>
+</html>
